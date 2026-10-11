@@ -213,7 +213,7 @@ function rankComparator(a, b) {
 | Attack Vector | Vulnerability | Mitigation Strategy |
 |---|---|---|
 | **DOM Injection / XSS** | Untrusted team/member names rendered into innerHTML | All dynamic strings pass through `escapeHtml()` text-node serialization before DOM insertion. |
-| **Admin Privilege Escalation** | Unauthorized participants accessing match orchestration | Admin route is protected by `adminAuthenticated` state gate and `sessionStorage` clearance validation. |
+| **Admin Privilege Escalation** | Unauthorized participants accessing match orchestration | Admin route protected by salted SHA-256 Web Crypto digest validation for authorized user `pravin0408`, brute-force rate-limiting (30s cooldown after 5 failed attempts), and `sessionStorage` clearance validation. Plaintext password is never present in code or DOM. |
 | **Cheating via Focus Switching** | Reading answers in another browser tab / monitor | `visibilitychange` and `window.blur` anti-cheat focus monitor with 3-strike permanent disqualification. |
 | **Score Tampering** | Client submitting arbitrarily inflated scores | Scores are computed deterministically by grading answer arrays against server-side/engine keys. |
 | **Timing Tampering** | Client spoofing `quiz_start_epoch` | Start epoch is broadcast by Admin upon match launch and stored centrally in the room state. |

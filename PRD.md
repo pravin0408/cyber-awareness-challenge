@@ -52,10 +52,11 @@ The platform is architected to operate with **zero recurring backend hosting cos
 #### 4.1 Role Gate & Clearance Access
 - **Landing Hub:** Clean high-tech portal with dual entry points: Participant Portal and Admin Command Center.
 - **Admin Clearance Gate:**
-  - Protected by username and password credentials (`admin` / `CyberAdmin@2026`).
-  - Session persistence via `sessionStorage`.
-  - Fast-action Auto-Fill button for rapid evaluation and local demonstration.
-  - Dedicated Logout trigger in the header bar.
+  - Protected by authorized administrator clearance for `pravin0408` via salted cryptographic SHA-256 verification.
+  - Plaintext credentials and auto-fill hints are strictly absent from client-side UI and DOM.
+  - Brute-force rate limiting (5 attempts threshold triggers 30-second security cooldown).
+  - Show/hide password visibility toggle with non-overlapping dedicated icon padding.
+  - Session persistence via `sessionStorage` with a dedicated Logout trigger.
 
 #### 4.2 Participant Registration & Roster Validation
 - **Form Fields (Kept Strict & Clean):**

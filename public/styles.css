@@ -174,7 +174,7 @@ html, body {
   width: 100%;
   max-width: 1120px;
   margin: 0 auto;
-  padding: 3.75rem 1.5rem 2.5rem;
+  padding: 5.5rem 1.5rem 2.5rem;
   min-height: 100vh;
   display: flex;
   flex-direction: column;
@@ -542,19 +542,50 @@ button:disabled {
   position: relative;
   display: flex;
   align-items: center;
+  width: 100%;
 }
 
 .input-icon-wrap .input-icon {
   position: absolute;
-  left: 1rem;
+  left: 1.1rem;
   color: var(--text-dim);
-  font-size: 1rem;
+  font-size: 1.15rem;
   pointer-events: none;
   transition: color 0.2s;
+  z-index: 3;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-.input-icon-wrap input {
-  padding-left: 2.75rem;
+.input-icon-wrap input[type="text"],
+.input-icon-wrap input[type="email"],
+.input-icon-wrap input[type="password"] {
+  padding-left: 3.25rem !important;
+  padding-right: 3.25rem !important;
+  position: relative;
+  z-index: 1;
+}
+
+.btn-toggle-pass {
+  position: absolute;
+  right: 0.85rem;
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  padding: 0.35rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.15rem;
+  z-index: 3;
+  transition: color 0.2s, transform 0.2s;
+}
+
+.btn-toggle-pass:hover {
+  color: var(--primary);
+  transform: scale(1.1);
 }
 
 input[type="text"],
@@ -771,7 +802,7 @@ input::placeholder {
 
 .room-hud-bar {
   display: grid;
-  grid-template-columns: 200px 1fr 150px;
+  grid-template-columns: minmax(180px, auto) minmax(260px, 1fr) minmax(140px, auto);
   gap: 1.35rem;
   background: rgba(6, 11, 23, 0.75);
   border: 1px solid var(--border-subtle);
@@ -785,6 +816,7 @@ input::placeholder {
   display: flex;
   flex-direction: column;
   gap: 0.35rem;
+  min-width: 0;
 }
 
 .room-hud-item .item-label {
@@ -799,6 +831,7 @@ input::placeholder {
   display: flex;
   align-items: center;
   gap: 0.75rem;
+  flex-wrap: wrap;
 }
 
 .room-code-badge .code-text {
@@ -813,6 +846,7 @@ input::placeholder {
 .join-url-box {
   display: flex;
   gap: 0.5rem;
+  width: 100%;
 }
 
 .join-url-box input {
@@ -821,6 +855,8 @@ input::placeholder {
   font-family: var(--font-mono);
   color: var(--text-muted);
   background: rgba(0, 0, 0, 0.5);
+  min-width: 0;
+  flex: 1;
 }
 
 .admin-action-banner {
@@ -1331,28 +1367,32 @@ tbody tr:hover {
 .modal-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(5, 8, 17, 0.88);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  z-index: 9999;
+  background: rgba(5, 8, 17, 0.92);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  z-index: 10000;
   display: flex;
   align-items: center;
   justify-content: center;
   padding: 1.5rem;
   animation: fadeIn 0.2s ease;
+  overflow-y: auto;
 }
 
 .modal-card {
   background: #0d1424;
   border: 1px solid var(--crimson);
   border-radius: var(--radius-lg);
-  padding: 2.75rem;
+  padding: 2.5rem 2rem;
   max-width: 520px;
   width: 100%;
   text-align: center;
   box-shadow: 0 0 60px var(--crimson-glow);
   position: relative;
   animation: popIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  margin: auto;
+  max-height: 90vh;
+  overflow-y: auto;
 }
 
 @keyframes popIn {

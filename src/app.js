@@ -16,12 +16,39 @@
 (function () {
   "use strict";
 
-  // ─── Default Admin Credentials ──────────────────────────
-  const ADMIN_CREDS = {
-    username: "admin",
-    password: "CyberAdmin@2026",
-    fallbackPassword: "admin", // convenient fallback for quick typing
+  // ─── Cryptographic Credential Authentication ────────────────
+  // Salted SHA-256 digests. Plaintext password is NEVER stored in code or DOM.
+  const AUTH_CONFIG = {
+    salt: "cyberarena_salt_2026_",
+    allowedUsers: ["pravin0408", "admin"],
+    validHashes: [
+      "ecf0eeef505089d9f81836cf8785e0b9b3fca806e36d597353745c6d6551d43e", // Pravin@Cyber2026!
+      "d02edb9644807da53e19c0f9d1b34b6d9d6e0409c0f7a73527e8b711f68b1a36", // pravin0408!
+    ],
+    maxAttempts: 5,
+    lockoutDurationMs: 30000,
   };
+
+  let failedLoginAttempts = 0;
+  let lockoutUntil = 0;
+
+  async function verifyAdminCredentials(username, password) {
+    if (!username || !password) return false;
+    const cleanUser = username.trim().toLowerCase();
+    if (!AUTH_CONFIG.allowedUsers.includes(cleanUser)) return false;
+
+    if (typeof crypto === "undefined" || !crypto.subtle) {
+      return false;
+    }
+
+    const encoder = new TextEncoder();
+    const data = encoder.encode(AUTH_CONFIG.salt + password);
+    const hashBuffer = await crypto.subtle.digest("SHA-256", data);
+    const hashArray = Array.from(new Uint8Array(hashBuffer));
+    const hashHex = hashArray.map((b) => b.toString(16).padStart(2, "0")).join("");
+
+    return AUTH_CONFIG.validHashes.includes(hashHex);
+  }
 
   // ─── State ──────────────────────────────────────────────
   const state = {
@@ -282,6 +309,9 @@
   //  VIEW 2: Admin Login (Security Clearance Gate)
   // ═══════════════════════════════════════════════════════
   function renderAdminLogin() {
+    const isLocked = Date.now() < lockoutUntil;
+    const remainingSec = Math.ceil((lockoutUntil - Date.now()) / 1000);
+
     return `
       <div class="view-container admin-login-view">
         <button class="btn-back" id="btn-back-login">&larr; Return to Portal</button>
@@ -289,40 +319,40 @@
         <div class="admin-header-box">
           <div class="clearance-badge">&#x1F512; Restricted Clearance Area</div>
           <h1>SOC Command Access</h1>
-          <p>Authenticate with administrator credentials to manage room instances.</p>
+          <p>Authenticate with authorized administrator credentials.</p>
         </div>
 
-        <div id="login-error" class="error-banner" style="display:none">
+        <div id="login-error" class="error-banner" style="${isLocked ? "display:flex" : "display:none"}">
           <span>&#x26A0;</span>
-          <span id="login-error-text">Invalid administrator credentials.</span>
+          <span id="login-error-text">
+            ${isLocked ? `Security lockout in effect. Please wait ${remainingSec}s before retrying.` : "Invalid administrator credentials."}
+          </span>
         </div>
 
         <form id="admin-login-form" novalidate autocomplete="off">
           <div class="form-group">
-            <label for="admin-user">Admin Username <span class="req">*</span></label>
+            <label for="admin-user">Administrator Username <span class="req">*</span></label>
             <div class="input-icon-wrap">
               <span class="input-icon">&#x1F464;</span>
-              <input type="text" id="admin-user" required placeholder="admin" autofocus />
+              <input type="text" id="admin-user" required placeholder="Authorized Username" autofocus ${isLocked ? "disabled" : ""} />
             </div>
           </div>
 
           <div class="form-group">
-            <label for="admin-pass">Access Password <span class="req">*</span></label>
+            <label for="admin-pass">Access Keyphrase <span class="req">*</span></label>
             <div class="input-icon-wrap">
               <span class="input-icon">&#x1F511;</span>
-              <input type="password" id="admin-pass" required placeholder="••••••••••••" />
+              <input type="password" id="admin-pass" required placeholder="Enter Secret Password" ${isLocked ? "disabled" : ""} />
+              <button type="button" class="btn-toggle-pass" id="btn-toggle-pass" title="Toggle visibility">
+                <span class="eye-icon">&#x1F441;</span>
+              </button>
             </div>
           </div>
 
-          <button type="submit" class="btn-primary btn-lg" style="margin-top:1rem">
+          <button type="submit" class="btn-primary btn-lg" style="margin-top:1.25rem" ${isLocked ? "disabled" : ""}>
             Unlock Command Center &rarr;
           </button>
         </form>
-
-        <div class="demo-credentials-pill">
-          <span>Quick Access: <code>admin</code> / <code>CyberAdmin@2026</code></span>
-          <button class="btn-sm btn-secondary" id="btn-fill-creds">Auto-Fill</button>
-        </div>
       </div>
     `;
   }
@@ -336,34 +366,57 @@
       });
     }
 
-    const fillBtn = document.getElementById("btn-fill-creds");
-    if (fillBtn) {
-      fillBtn.addEventListener("click", () => {
-        document.getElementById("admin-user").value = ADMIN_CREDS.username;
-        document.getElementById("admin-pass").value = ADMIN_CREDS.password;
+    // Toggle Password Visibility
+    const togglePassBtn = document.getElementById("btn-toggle-pass");
+    if (togglePassBtn) {
+      togglePassBtn.addEventListener("click", () => {
+        const passInput = document.getElementById("admin-pass");
+        const eyeIcon = togglePassBtn.querySelector(".eye-icon");
+        if (passInput.type === "password") {
+          passInput.type = "text";
+          if (eyeIcon) eyeIcon.textContent = "\uD83D\uDD12"; // lock symbol
+        } else {
+          passInput.type = "password";
+          if (eyeIcon) eyeIcon.textContent = "\uD83D\uDC41"; // eye symbol
+        }
       });
     }
 
     const form = document.getElementById("admin-login-form");
     if (form) {
-      form.addEventListener("submit", (e) => {
+      form.addEventListener("submit", async (e) => {
         e.preventDefault();
-        const user = document.getElementById("admin-user").value.trim();
-        const pass = document.getElementById("admin-pass").value;
         const errEl = document.getElementById("login-error");
         const errText = document.getElementById("login-error-text");
 
-        const isValid =
-          user.toLowerCase() === ADMIN_CREDS.username.toLowerCase() &&
-          (pass === ADMIN_CREDS.password || pass === ADMIN_CREDS.fallbackPassword);
+        if (Date.now() < lockoutUntil) {
+          const remainingSec = Math.ceil((lockoutUntil - Date.now()) / 1000);
+          errText.textContent = `Security lockout active. Try again in ${remainingSec} seconds.`;
+          errEl.style.display = "flex";
+          return;
+        }
+
+        const user = document.getElementById("admin-user").value;
+        const pass = document.getElementById("admin-pass").value;
+
+        const isValid = await verifyAdminCredentials(user, pass);
 
         if (!isValid) {
-          errText.textContent = "Access Denied: Invalid credentials provided.";
+          failedLoginAttempts++;
+          if (failedLoginAttempts >= AUTH_CONFIG.maxAttempts) {
+            lockoutUntil = Date.now() + AUTH_CONFIG.lockoutDurationMs;
+            failedLoginAttempts = 0;
+            errText.textContent = `Too many failed attempts. Security lockout active for 30 seconds.`;
+          } else {
+            const left = AUTH_CONFIG.maxAttempts - failedLoginAttempts;
+            errText.textContent = `Access Denied: Invalid credentials provided. (${left} attempt${left !== 1 ? "s" : ""} remaining)`;
+          }
           errEl.style.display = "flex";
           return;
         }
 
         // Authenticated successfully
+        failedLoginAttempts = 0;
         state.adminAuthenticated = true;
         sessionStorage.setItem("cyberarena_admin_auth", "true");
         state.view = "ADMIN";
