@@ -274,7 +274,7 @@
           <div class="role-card" id="btn-participant">
             <div class="role-icon-box">&#x1F465;</div>
             <h2>Participant Portal</h2>
-            <p>Join an active War Room with your 5-person roster to compete in timed threat simulations.</p>
+            <p>Join an active War Room with your 4-person squad (1 Lead + 3 Teammates) to compete in timed threat simulations.</p>
           </div>
 
           <div class="role-card admin-card" id="btn-admin">
@@ -435,7 +435,7 @@
         
         <div style="margin-bottom: 2rem;">
           <h1>Team Registration</h1>
-          <p>Register your 5-member defensive unit into an existing Challenge Room.</p>
+          <p>Register your 4-member defensive unit (1 Lead + 3 Teammates) into an existing Challenge Room.</p>
         </div>
 
         <div id="register-error" class="error-banner" style="display:none">
@@ -487,7 +487,7 @@
             </div>
           </div>
 
-          <!-- 4 Teammates -->
+          <!-- 3 Teammates -->
           <div class="form-section">
             <div class="form-section-title">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -496,7 +496,7 @@
                 <path d="M22 21v-2a4 4 0 0 0-3-3.87"/>
                 <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
               </svg>
-              <span>3. Squad Members (Exactly 4 Teammates Required)</span>
+              <span>3. Squad Members (Exactly 3 Teammates Required)</span>
             </div>
 
             <div class="form-row">
@@ -515,12 +515,8 @@
                 <label for="mate-3">Teammate 3 Name <span class="req">*</span></label>
                 <input type="text" id="mate-3" required maxlength="60" placeholder="Member 3 full name" />
               </div>
-              <div class="form-group">
-                <label for="mate-4">Teammate 4 Name <span class="req">*</span></label>
-                <input type="text" id="mate-4" required maxlength="60" placeholder="Member 4 full name" />
-              </div>
             </div>
-            <p class="form-hint">Total squad size must strictly be 5 members (1 Lead + 4 Teammates). Names must all be distinct.</p>
+            <p class="form-hint">Total squad size must strictly be 4 members (1 Lead + 3 Teammates). Names must all be distinct.</p>
           </div>
 
           <button type="submit" class="btn-primary btn-lg">Join War Room &rarr;</button>
@@ -554,7 +550,6 @@
           document.getElementById("mate-1").value.trim(),
           document.getElementById("mate-2").value.trim(),
           document.getElementById("mate-3").value.trim(),
-          document.getElementById("mate-4").value.trim(),
         ];
 
         const errors = validateRegistration(teamName, roomCode, leadName, leadEmail, mates);
@@ -597,13 +592,13 @@
       errors.push("Valid email address is required.");
     }
     const emptyMates = mates.filter((m) => !m);
-    if (emptyMates.length > 0) errors.push("All 4 teammate names are strictly required.");
+    if (emptyMates.length > 0) errors.push("All 3 teammate names are strictly required.");
 
-    // Unique names check across 5 members
+    // Unique names check across 4 members (1 Lead + 3 Teammates)
     const allNames = [leadName, ...mates].map((n) => n.toLowerCase().trim()).filter(Boolean);
     const unique = new Set(allNames);
     if (unique.size < allNames.length) {
-      errors.push("Duplicate names detected. All 5 team members must have unique names.");
+      errors.push("Duplicate names detected. All 4 squad members (1 Lead + 3 Teammates) must have unique names.");
     }
 
     return errors;
@@ -663,7 +658,7 @@
               <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
               <circle cx="9" cy="7" r="4"/>
             </svg>
-            <span>Active Unit Roster (5/5 Operators Connected)</span>
+            <span>Active Unit Roster (4/4 Operators Connected)</span>
           </div>
           <div class="member-grid">
             ${memberTiles}

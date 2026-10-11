@@ -38,7 +38,7 @@ The platform is architected to operate with **zero recurring backend hosting cos
    - *Pain Points:* Boring compliance slides, ambiguity in team ranking, unfair tab-switching cheaters.
 
 2. **Squad Lead (Team Captain)**
-   - *Profile:* Senior team member coordinating the 5-person roster.
+   - *Profile:* Senior team member coordinating the 4-person squad (1 Lead + 3 Teammates).
    - *Needs:* Easy room joining via 6-character room codes or direct URLs, clear confirmation of squad readiness.
 
 3. **Security Awareness Administrator / SOC Lead**
@@ -67,8 +67,8 @@ The platform is architected to operate with **zero recurring backend hosting cos
      - Corporate Email (Regex validated RFC 5322)
   4. Exactly 4 Teammates (Teammate 1, 2, 3, 4 full names)
 - **Validation Rules:**
-  - Strict team size: Exactly 5 members (1 Lead + 4 Teammates).
-  - Uniqueness: No duplicate names across any of the 5 members.
+  - Strict team size: Exactly 4 members (1 Lead + 3 Teammates).
+  - Uniqueness: No duplicate names across any of the 4 members.
   - Room verification: Target room must exist and be in `WAITING` status.
   - Team name uniqueness within the target room.
 

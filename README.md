@@ -55,7 +55,7 @@ Open **[http://localhost:3000/public/index.html](http://localhost:3000/public/in
    - Click **Generate New Room Code** (e.g. `ABC123`).
 2. **Participant Window:**
    - Open a second browser tab at [http://localhost:3000/public/index.html](http://localhost:3000/public/index.html).
-   - Click **Participant** &rarr; Enter your team name, room code, team lead, and 4 teammate names.
+   - Click **Participant** &rarr; Enter your team name, room code, team lead, and 3 teammate names.
    - Click **Join War Room**.
 3. **Launch & Compete:**
    - In the **Admin Window**, click **Broadcast Launch Signal**. Both windows will immediately transition into the synchronized 15-minute challenge.
