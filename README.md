@@ -16,6 +16,8 @@ An enterprise-grade, real-time web application to host timed, proctored cybersec
 
 ## 🚀 Key Features
 
+- **Modern 3D Cyber WebGL Experience:** Interactive Three.js 3D Cyber Defense Core with rotating geodesic polyhedron, orbital rings, ambient particle field, undulating perspective cyber grid floor, smooth mouse parallax, and real-time reactive threat mode lighting (Normal Cyan &rarr; Launch Emerald &rarr; Warning Amber &rarr; Critical Crimson &rarr; Victory Gold).
+- **Interactive 3D Card Tilt Physics:** Specular perspective tilt and depth layering on UI cards and HUD elements responding dynamically to cursor position.
 - **Anti-Cheat Focus Proctoring Engine:** Client-side window-focus tracking (`visibilitychange` & `window.blur`). Tab switches or lost focus trigger strikes. **3 strikes = instant disqualification (`TAB_SWITCH_EXCEEDED`)**.
 - **10-Question 15-Minute Timed Engine:** Realistic cybersecurity incident questions covering spear phishing header analysis, MFA push bombing, vishing, supply chain typosquatting, credential hygiene, QR quishing, and CI/CD pipeline exploits.
 - **Deterministic Auto-Scoring:** Strict tie-breaking algorithms that prioritize **Accuracy** (correct answers out of 10) first, and **Elapsed Time** (`quiz_finish_epoch - quiz_start_epoch`) second. Disqualified/Expired teams are demoted to the bottom.

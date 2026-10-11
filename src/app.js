@@ -55,6 +55,20 @@
       state.adminAuthenticated = true;
     }
 
+    // Bind 3D toggle button in HUD
+    const toggle3DBtn = document.getElementById("btn-toggle-3d");
+    if (toggle3DBtn) {
+      toggle3DBtn.addEventListener("click", () => {
+        if (window.Cyber3D) {
+          const enabled = window.Cyber3D.toggle();
+          const label = document.getElementById("hud-3d-label");
+          if (label) {
+            label.textContent = enabled ? "3D CORE // ACTIVE" : "3D CORE // PAUSED";
+          }
+        }
+      });
+    }
+
     setupGlobalListeners();
     renderView();
   });
@@ -71,6 +85,19 @@
     }
 
     hideAllModals();
+
+    // Dynamically harmonize 3D WebGL background theme
+    if (window.Cyber3D && typeof window.Cyber3D.setTheme === "function") {
+      if (state.view === "QUIZ") {
+        window.Cyber3D.setTheme("launch");
+      } else if (state.view === "SCOREBOARD") {
+        window.Cyber3D.setTheme("victory");
+      } else if (state.view === "DQ_SCREEN") {
+        window.Cyber3D.setTheme("critical");
+      } else {
+        window.Cyber3D.setTheme("normal");
+      }
+    }
 
     switch (state.view) {
       case "ROLE_SELECT":
@@ -879,6 +906,9 @@
 
     state.proctor = new Proctor({
       onStrike: (strikeCount) => {
+        if (window.Cyber3D && typeof window.Cyber3D.setTheme === "function") {
+          window.Cyber3D.setTheme("warning");
+        }
         const modal = document.getElementById("strike-modal");
         const textEl = document.getElementById("strike-modal-text");
         if (modal && textEl) {
