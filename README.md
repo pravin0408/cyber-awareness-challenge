@@ -20,7 +20,7 @@ An enterprise-grade, real-time web application to host timed, proctored cybersec
 - **Interactive 3D Card Tilt Physics:** Specular perspective tilt and depth layering on UI cards and HUD elements responding dynamically to cursor position.
 - **Anti-Cheat Focus Proctoring Engine:** Client-side window-focus tracking (`visibilitychange` & `window.blur`). Tab switches or lost focus trigger strikes. **3 strikes = instant disqualification (`TAB_SWITCH_EXCEEDED`)**.
 - **10-Question 15-Minute Timed Engine:** Realistic cybersecurity incident questions covering spear phishing header analysis, MFA push bombing, vishing, supply chain typosquatting, credential hygiene, QR quishing, and CI/CD pipeline exploits.
-- **Deterministic Auto-Scoring:** Strict tie-breaking algorithms that prioritize **Accuracy** (correct answers out of 10) first, and **Elapsed Time** (`quiz_finish_epoch - quiz_start_epoch`) second. Disqualified/Expired teams are demoted to the bottom.
+- **Deterministic Auto-Scoring & Results Retention:** Strict tie-breaking algorithms that prioritize **Accuracy** (correct answers out of 10) first, and **Elapsed Time** (`quiz_finish_epoch - quiz_start_epoch`) second. All finalized match leaderboards are permanently archived in local storage with 1-click **CSV** and **JSON** exports and threat scenario review.
 - **Zero-Cost Real-Time Architecture:** Uses the native browser `BroadcastChannel` API and `localStorage` to synchronize Participant tabs and Admin tabs in genuine real time without requiring a paid WebSocket server.
 - **Secured Admin Command Center:** Security clearance gate with username & password authentication (`admin` / `CyberAdmin@2026`), room code generation, participant kick/DQ actions, and post-match audit holds.
 

@@ -1030,6 +1030,62 @@
               <button class="btn-secondary" id="btn-admin-join">Load Room &rarr;</button>
             </div>
           </div>
+
+          <!-- Saved Historical Match Archives -->
+          <div class="form-section" style="margin-top:2rem">
+            <div class="form-section-title" style="display:flex; justify-content:space-between; align-items:center;">
+              <span>Historical Match Ledger & Saved Results (${state.backend.getArchives().length} Recorded)</span>
+              ${
+                state.backend.getArchives().length > 0
+                  ? `<button class="btn-sm btn-danger" id="btn-clear-archives" style="text-transform:none">Clear All History</button>`
+                  : ""
+              }
+            </div>
+            
+            ${
+              state.backend.getArchives().length > 0
+                ? `
+                <div class="table-wrapper">
+                  <table>
+                    <thead>
+                      <tr>
+                        <th>Date & Time</th>
+                        <th>Room Code</th>
+                        <th>Squads</th>
+                        <th>Winning Squad</th>
+                        <th>Top Score</th>
+                        <th>Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      ${state.backend
+                        .getArchives()
+                        .map(
+                          (a) => `
+                        <tr>
+                          <td>${new Date(a.finalizedAt || a.createdAt).toLocaleString()}</td>
+                          <td><strong style="color:var(--primary); font-family:var(--font-mono)">${escapeHtml(a.roomCode)}</strong></td>
+                          <td>${a.totalTeams}</td>
+                          <td>${escapeHtml(a.winningTeam)}</td>
+                          <td><span style="color:var(--emerald); font-weight:700; font-family:var(--font-mono)">${a.topScore}/10</span></td>
+                          <td>
+                            <div style="display:flex; gap:0.5rem">
+                              <button class="btn-sm btn-secondary" data-inspect-archive="${a.roomCode}">View Results</button>
+                              <button class="btn-sm btn-secondary" data-csv-archive="${a.roomCode}">CSV</button>
+                              <button class="btn-sm btn-danger" data-del-archive="${a.roomCode}">Delete</button>
+                            </div>
+                          </td>
+                        </tr>
+                      `
+                        )
+                        .join("")}
+                    </tbody>
+                  </table>
+                </div>
+              `
+                : '<p style="color:var(--text-muted); font-size:0.9rem;">No completed match records yet. Finalized match results are permanently kept here across sessions.</p>'
+            }
+          </div>
         </div>
       `;
     }
@@ -1366,6 +1422,50 @@
       });
     }
 
+    // Archived Match Actions
+    document.querySelectorAll("[data-inspect-archive]").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const code = btn.dataset.inspectArchive;
+        const match = state.backend.getArchivedMatch(code);
+        if (match && match.leaderboard) {
+          state.roomCode = match.roomCode;
+          state.leaderboard = match.leaderboard;
+          state.view = "SCOREBOARD";
+          renderView();
+        }
+      });
+    });
+
+    document.querySelectorAll("[data-csv-archive]").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const code = btn.dataset.csvArchive;
+        const match = state.backend.getArchivedMatch(code);
+        if (match && match.leaderboard) {
+          exportLeaderboardToCSV(code, match.leaderboard);
+        }
+      });
+    });
+
+    document.querySelectorAll("[data-del-archive]").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const code = btn.dataset.delArchive;
+        if (confirm(`Permanently remove archived match record ${code}?`)) {
+          state.backend.deleteArchive(code);
+          renderView();
+        }
+      });
+    });
+
+    const clearArchivesBtn = document.getElementById("btn-clear-archives");
+    if (clearArchivesBtn) {
+      clearArchivesBtn.addEventListener("click", () => {
+        if (confirm("Are you sure you want to permanently delete ALL saved match results?")) {
+          state.backend.clearAllArchives();
+          renderView();
+        }
+      });
+    }
+
     // If live, start timer loop
     if (state.matchLaunched && state.quizEndEpoch) {
       startAdminMatchTimer();
@@ -1415,6 +1515,54 @@
         state.backend.finalizeRoom(state.roomCode, Scoring.buildLeaderboard);
       }
     }, 500);
+  }
+
+  // ─── Export & Archival Tools ────────────────────────────
+  function exportLeaderboardToCSV(roomCode, leaderboard) {
+    if (!leaderboard || leaderboard.length === 0) {
+      alert("No results available to export.");
+      return;
+    }
+    let csv = "Rank,Squad Name,Score,Max Questions,Accuracy %,Elapsed Duration,Status,Timestamp\n";
+    leaderboard.forEach((t) => {
+      const elapsedStr = Scoring.formatElapsed(t.elapsed_ms);
+      const acc = ((t.score / QUESTIONS.length) * 100).toFixed(1);
+      const name = (t.teamName || "").replace(/"/g, '""');
+      const timeIso = t.quiz_finish_epoch ? new Date(t.quiz_finish_epoch).toISOString() : "N/A";
+      csv += `"${t.rank}","${name}","${t.score}","${QUESTIONS.length}","${acc}%","${elapsedStr}","${t.status}","${timeIso}"\n`;
+    });
+
+    const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.setAttribute("download", `cyberarena_results_${roomCode}_${Date.now()}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  }
+
+  function exportLeaderboardToJSON(roomCode, leaderboard) {
+    if (!leaderboard || leaderboard.length === 0) {
+      alert("No results available to export.");
+      return;
+    }
+    const payload = {
+      roomCode: roomCode,
+      exportedAt: new Date().toISOString(),
+      totalQuestions: QUESTIONS.length,
+      leaderboard: leaderboard,
+    };
+    const blob = new Blob([JSON.stringify(payload, null, 2)], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.setAttribute("download", `cyberarena_audit_${roomCode}_${Date.now()}.json`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
   }
 
   // ═══════════════════════════════════════════════════════
@@ -1489,9 +1637,47 @@
           </table>
         </div>
 
+        <!-- 1-Click Export and Threat Breakdown Controls -->
+        <div style="display:flex; gap:1rem; justify-content:center; margin-top:2.25rem; flex-wrap:wrap;">
+          <button class="btn-secondary" id="btn-export-csv">
+            &#x1F4E5; Export Results (CSV)
+          </button>
+          <button class="btn-secondary" id="btn-export-json">
+            &#x1F4C4; Export Audit Log (JSON)
+          </button>
+          <button class="btn-secondary" id="btn-toggle-breakdown">
+            &#x1F4D6; Threat Scenario Analysis & Rationales
+          </button>
+        </div>
+
+        <!-- Collapsible Scenario Analysis Section -->
+        <div id="rationales-breakdown" style="display:none; margin-top:2rem;" class="form-section">
+          <div class="form-section-title">
+            <span>Threat Defense Breakdown & Answer Keys</span>
+          </div>
+          <div style="display:flex; flex-direction:column; gap:1.25rem;">
+            ${QUESTIONS.map((q, idx) => `
+              <div style="background:rgba(6,11,23,0.7); border:1px solid var(--border-subtle); border-radius:var(--radius-md); padding:1.25rem; text-align:left;">
+                <div style="font-family:var(--font-mono); color:var(--primary); font-size:0.8rem; margin-bottom:0.35rem;">
+                  QUESTION ${idx + 1} // ${escapeHtml(q.category)}
+                </div>
+                <div style="color:#fff; font-weight:600; font-size:0.95rem; margin-bottom:0.75rem;">
+                  ${escapeHtml(q.question)}
+                </div>
+                <div style="color:var(--emerald); font-size:0.9rem; font-weight:600; margin-bottom:0.5rem;">
+                  &#x2714; Correct Action: ${escapeHtml(q.options[q.correctIndex])}
+                </div>
+                <div style="color:var(--text-muted); font-size:0.85rem; line-height:1.45; border-left:2px solid var(--primary); padding-left:0.75rem;">
+                  <strong>Educational Rationale:</strong> ${escapeHtml(q.rationale)}
+                </div>
+              </div>
+            `).join("")}
+          </div>
+        </div>
+
         <div style="margin-top:2.5rem; display:flex; justify-content:center">
           <button class="btn-primary btn-lg" id="btn-sb-home" style="max-width:320px">
-            Return to Main Portal &rarr;
+            Return to Dashboard &rarr;
           </button>
         </div>
       </div>
@@ -1499,10 +1685,45 @@
   }
 
   function bindScoreboard() {
+    // Export CSV
+    const csvBtn = document.getElementById("btn-export-csv");
+    if (csvBtn) {
+      csvBtn.addEventListener("click", () => {
+        exportLeaderboardToCSV(state.roomCode || "RESULTS", state.leaderboard);
+      });
+    }
+
+    // Export JSON
+    const jsonBtn = document.getElementById("btn-export-json");
+    if (jsonBtn) {
+      jsonBtn.addEventListener("click", () => {
+        exportLeaderboardToJSON(state.roomCode || "RESULTS", state.leaderboard);
+      });
+    }
+
+    // Toggle Breakdown
+    const toggleBreakdownBtn = document.getElementById("btn-toggle-breakdown");
+    if (toggleBreakdownBtn) {
+      toggleBreakdownBtn.addEventListener("click", () => {
+        const bd = document.getElementById("rationales-breakdown");
+        if (bd) {
+          const isHidden = bd.style.display === "none";
+          bd.style.display = isHidden ? "block" : "none";
+          toggleBreakdownBtn.textContent = isHidden
+            ? "▲ Hide Scenario Analysis"
+            : "📖 Threat Scenario Analysis & Rationales";
+        }
+      });
+    }
+
     const homeBtn = document.getElementById("btn-sb-home");
     if (homeBtn) {
       homeBtn.addEventListener("click", () => {
-        state.view = "ROLE_SELECT";
+        if (state.role === "admin" && state.adminAuthenticated) {
+          state.view = "ADMIN";
+        } else {
+          state.view = "ROLE_SELECT";
+        }
         state.roomCode = null;
         state.teamId = null;
         state.leaderboard = null;

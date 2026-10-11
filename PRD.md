@@ -119,12 +119,19 @@ The platform is architected to operate with **zero recurring backend hosting cos
   - Allows in-flight network submissions to finalize and proctoring violation logs to reconcile.
   - Once audit elapses (or when accelerated by the admin), the official Leaderboard is rendered.
 
-#### 4.7 Deterministic Ranking Engine
-Strict sorting priority:
-1. **Integrity Filter:** Teams with status `DISQUALIFIED` or `EXPIRED` sink to the bottom.
-2. **Primary Metric:** Accuracy / Score (descending: 10/10 wins over 9/10).
-3. **Primary Tie-Breaker:** Elapsed Mission Duration (`quiz_finish_epoch - quiz_start_epoch` ascending: faster duration wins).
-4. **Secondary Tie-Breaker:** Earliest Finish Timestamp (`quiz_finish_epoch` ascending).
+#### 4.7 Deterministic Ranking Engine & Results Retention
+- Strict sorting priority:
+  1. **Integrity Filter:** Teams with status `DISQUALIFIED` or `EXPIRED` sink to the bottom.
+  2. **Primary Metric:** Accuracy / Score (descending: 10/10 wins over 9/10).
+  3. **Primary Tie-Breaker:** Elapsed Mission Duration (`quiz_finish_epoch - quiz_start_epoch` ascending: faster duration wins).
+  4. **Secondary Tie-Breaker:** Earliest Finish Timestamp (`quiz_finish_epoch` ascending).
+- **Persistent Results Ledger:**
+  - Finalized matches are automatically saved to `cyberarena_archives` in persistent local storage.
+  - Admins can inspect past match leaderboards at any time.
+- **1-Click Export & Compliance:**
+  - Export to CSV (`.csv`) with full rank, squad name, accuracy, duration, and status metrics.
+  - Export to JSON (`.json`) audit logs for SOC/SIEM record-keeping.
+  - Interactive Threat Scenario breakdown showing correct defensive actions and educational rationales.
 
 ---
 

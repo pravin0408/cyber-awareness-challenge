@@ -470,11 +470,78 @@
       room.status = "FINISHED";
       this.saveRoom(room);
 
+      // Persist permanently to historical archives
+      this.saveToArchive(room);
+
       this.broadcast({
         type: MSG.LEADERBOARD_READY,
         roomCode: roomCode,
         leaderboard: room.leaderboard,
       });
+    }
+
+    /**
+     * Archive a finalized match to persistent historical storage.
+     * @param {object} room
+     */
+    saveToArchive(room) {
+      if (!room || !room.roomCode || !room.leaderboard) return;
+      const archives = this.getArchives();
+      const existingIdx = archives.findIndex((a) => a.roomCode === room.roomCode);
+
+      const entry = {
+        roomCode: room.roomCode,
+        createdAt: room.createdAt || Date.now(),
+        finalizedAt: Date.now(),
+        totalTeams: Object.keys(room.teams || {}).length,
+        winningTeam: room.leaderboard[0] ? room.leaderboard[0].teamName : "N/A",
+        topScore: room.leaderboard[0] ? room.leaderboard[0].score : 0,
+        leaderboard: room.leaderboard,
+        teams: room.teams,
+      };
+
+      if (existingIdx >= 0) {
+        archives[existingIdx] = entry;
+      } else {
+        archives.unshift(entry); // Newest first
+      }
+
+      lsSet("archives", archives);
+    }
+
+    /**
+     * Retrieve all historical match archives from persistent storage.
+     * @returns {object[]}
+     */
+    getArchives() {
+      const list = lsGet("archives");
+      return Array.isArray(list) ? list : [];
+    }
+
+    /**
+     * Retrieve a specific archived match by room code.
+     * @param {string} roomCode
+     * @returns {object|null}
+     */
+    getArchivedMatch(roomCode) {
+      const archives = this.getArchives();
+      return archives.find((a) => a.roomCode === roomCode) || null;
+    }
+
+    /**
+     * Remove an archived match from historical storage.
+     * @param {string} roomCode
+     */
+    deleteArchive(roomCode) {
+      const archives = this.getArchives().filter((a) => a.roomCode !== roomCode);
+      lsSet("archives", archives);
+    }
+
+    /**
+     * Clear all historical match archives.
+     */
+    clearAllArchives() {
+      lsRemove("archives");
     }
 
     /**
