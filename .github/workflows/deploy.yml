@@ -51,9 +51,9 @@ jobs:
       # For this static SPA, we just deploy the root or build a dist directory
       - name: Prepare build directory
         run: |
-          mkdir dist
+          mkdir -p dist
           cp -r public/* dist/
-          mkdir dist/src
+          mkdir -p dist/src
           cp -r src/* dist/src/
 
       - name: Upload artifact
