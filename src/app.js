@@ -47,7 +47,7 @@
   };
 
   // ─── Initialization ─────────────────────────────────────
-  document.addEventListener("DOMContentLoaded", () => {
+  function bootstrap() {
     state.backend = new MockBackend();
     
     // Check if admin was previously authenticated in this session
@@ -71,7 +71,13 @@
 
     setupGlobalListeners();
     renderView();
-  });
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", bootstrap);
+  } else {
+    bootstrap();
+  }
 
   // ─── View Router ────────────────────────────────────────
   function renderView() {

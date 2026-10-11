@@ -318,12 +318,22 @@
     });
   }
 
-  // Auto-init on load
+  // Auto-init on load safely
   if (typeof window !== "undefined") {
-    window.addEventListener("DOMContentLoaded", () => {
-      init3D();
-      init3DCardTilt();
-    });
+    function startCyber3D() {
+      try {
+        init3D();
+        init3DCardTilt();
+      } catch (err) {
+        console.warn("[Cyber3D] WebGL canvas init skipped or unsupported:", err);
+      }
+    }
+
+    if (document.readyState === "loading") {
+      window.addEventListener("DOMContentLoaded", startCyber3D);
+    } else {
+      startCyber3D();
+    }
 
     window.Cyber3D = {
       init: init3D,

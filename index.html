@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>CyberArena | 3D Real-Time Cybersecurity Threat Defense</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;600;700&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <!-- 3D WebGL Background Canvas -->
+  <canvas id="cyber-3d-canvas"></canvas>
+
+  <!-- Cyber Scanlines and Ambient Lighting Overlay -->
+  <div class="cyber-scanlines"></div>
+  <div class="cyber-bg-glow"></div>
+
+  <!-- Top 3D HUD Telemetry Bar -->
+  <div class="hud-top-bar">
+    <div class="hud-left">
+      <span class="hud-pulse-dot"></span>
+      <span class="hud-sys-status">SYS.NODE // ONLINE</span>
+    </div>
+    <div class="hud-right">
+      <button class="hud-3d-toggle" id="btn-toggle-3d" title="Toggle 3D WebGL Engine">
+        <span class="hud-3d-icon">&#x2B22;</span>
+        <span id="hud-3d-label">3D CORE // ACTIVE</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Mount point for SPA views with graceful initial state -->
+  <div id="app">
+    <div class="view-container role-select-view" style="text-align:center; max-width:600px; margin:0 auto;">
+      <div class="cyber-logo">
+        <div class="shield-badge">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+            <path d="m9 12 2 2 4-4"/>
+          </svg>
+        </div>
+        <h1>CyberArena</h1>
+        <p class="subtitle">Initializing Threat Defense System...</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Three.js WebGL Engine -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+
+  <!-- Core Application Scripts (Direct synchronous execution in guaranteed order) -->
+  <script src="src/questions.js"></script>
+  <script src="src/scoring.js"></script>
+  <script src="src/proctor.js"></script>
+  <script src="src/mockBackend.js"></script>
+  <script src="src/threeScene.js"></script>
+  <script src="src/app.js"></script>
+</body>
+</html>

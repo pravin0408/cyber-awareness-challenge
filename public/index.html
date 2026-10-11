@@ -13,7 +13,7 @@
   <!-- 3D WebGL Background Canvas -->
   <canvas id="cyber-3d-canvas"></canvas>
 
-  <!-- Cyber Scanline and Ambient Lighting Overlay -->
+  <!-- Cyber Scanlines and Ambient Lighting Overlay -->
   <div class="cyber-scanlines"></div>
   <div class="cyber-bg-glow"></div>
 
@@ -31,31 +31,31 @@
     </div>
   </div>
 
-  <!-- Mount point for SPA views -->
-  <div id="app"></div>
+  <!-- Mount point for SPA views with graceful initial state -->
+  <div id="app">
+    <div class="view-container role-select-view" style="text-align:center; max-width:600px; margin:0 auto;">
+      <div class="cyber-logo">
+        <div class="shield-badge">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+            <path d="m9 12 2 2 4-4"/>
+          </svg>
+        </div>
+        <h1>CyberArena</h1>
+        <p class="subtitle">Initializing Threat Defense System...</p>
+      </div>
+    </div>
+  </div>
 
   <!-- Three.js WebGL Engine -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 
-  <!-- Dynamic Universal Script Loader -->
-  <script>
-    (function () {
-      const isLocalPublic =
-        window.location.pathname.includes("/public/") ||
-        window.location.pathname.endsWith("/public");
-      const prefix = isLocalPublic ? "../src/" : "./src/";
-      const scripts = [
-        "questions.js",
-        "scoring.js",
-        "proctor.js",
-        "mockBackend.js",
-        "threeScene.js",
-        "app.js",
-      ];
-      scripts.forEach(function (s) {
-        document.write('<script src="' + prefix + s + '"><\/script>');
-      });
-    })();
-  </script>
+  <!-- Core Application Scripts (Direct synchronous execution in guaranteed order) -->
+  <script src="src/questions.js"></script>
+  <script src="src/scoring.js"></script>
+  <script src="src/proctor.js"></script>
+  <script src="src/mockBackend.js"></script>
+  <script src="src/threeScene.js"></script>
+  <script src="src/app.js"></script>
 </body>
 </html>
